@@ -66,32 +66,119 @@ namespace LocalisationAnalyser.Localisation
         }
 
         /// <summary>
-        /// Reads a <see cref="LocalisationFile"/> from a file.
+        /// Reads a <see cref="LocalisationFile"/> from a stream.
         /// </summary>
         /// <param name="stream">The stream to read.</param>
         /// <returns>The <see cref="LocalisationFile"/>.</returns>
         /// <exception cref="MalformedLocalisationException">If the file doesn't contain a valid <see cref="LocalisationFile"/>.</exception>
         public static async Task<LocalisationFile> ReadAsync(Stream stream)
         {
-            using (var sr = new StreamReader(stream))
+            var result = await TryReadAsync(stream);
+
+            if (!result.success)
+                throw result.failureReason!;
+
+            return result.file;
+        }
+
+        /// <summary>
+        /// Attempts to read a <see cref="LocalisationFile"/> from a stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <returns>A tuple describing whether the <see cref="LocalisationFile"/> was successfully read, the resultant <see cref="LocalisationFile"/>, and an error
+        /// in the form of an <see cref="Exception"/> if the read failed.</returns>
+        public static async Task<(bool success, LocalisationFile file, Exception? failureReason)> TryReadAsync(Stream stream)
+        {
+            bool result = false;
+            LocalisationFile? file = null;
+            Exception? failureReason = null;
+
+            try
             {
-                var syntaxTree = CSharpSyntaxTree.ParseText(await sr.ReadToEndAsync());
-                var syntaxRoot = await syntaxTree.GetRootAsync();
+                using (var sr = new StreamReader(stream))
+                {
+                    var syntaxTree = CSharpSyntaxTree.ParseText(await sr.ReadToEndAsync());
+                    var syntaxRoot = await syntaxTree.GetRootAsync();
 
-                var walker = new Walker();
-                walker.Visit(syntaxRoot);
+                    var walker = new Walker();
+                    walker.Visit(syntaxRoot);
 
-                if (string.IsNullOrEmpty(walker.Namespace))
-                    throw new MalformedLocalisationException("The localisation file contains no namespace.");
-
-                if (string.IsNullOrEmpty(walker.Name))
-                    throw new MalformedLocalisationException("The localisation file contains no class.");
-
-                if (string.IsNullOrEmpty(walker.Prefix))
-                    throw new MalformedLocalisationException("The localisation file contains no prefix identifier");
-
-                return new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
+                    if (string.IsNullOrEmpty(walker.Namespace))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
+                    else if (string.IsNullOrEmpty(walker.Name))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no class.");
+                    else if (string.IsNullOrEmpty(walker.Prefix))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
+                    else
+                    {
+                        file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
+                        result = true;
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                failureReason = ex;
+            }
+
+            file ??= new LocalisationFile(string.Empty, string.Empty, string.Empty, Array.Empty<LocalisationMember>());
+            return (result, file, failureReason);
+        }
+
+        /// <summary>
+        /// Reads a <see cref="LocalisationFile"/> from a stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <returns>The <see cref="LocalisationFile"/>.</returns>
+        /// <exception cref="MalformedLocalisationException">If the file doesn't contain a valid <see cref="LocalisationFile"/>.</exception>
+        public static LocalisationFile Read(Stream stream)
+        {
+            if (!TryRead(stream, out var file, out var ex))
+                throw ex!;
+
+            return file;
+        }
+
+        /// <summary>
+        /// Attempts to read a <see cref="LocalisationFile"/> from a stream.
+        /// </summary>
+        /// <param name="stream">The stream to read.</param>
+        /// <param name="file">The resultant <see cref="LocalisationFile"/>.</param>
+        /// <param name="failureReason">The reason why the <see cref="LocalisationFile"/> failed to be read.</param>
+        /// <returns>Whether the <see cref="LocalisationFile"/> was successfully read.</returns>
+        public static bool TryRead(Stream stream, out LocalisationFile file, out Exception? failureReason)
+        {
+            try
+            {
+                using (var sr = new StreamReader(stream))
+                {
+                    var syntaxTree = CSharpSyntaxTree.ParseText(sr.ReadToEnd());
+                    var syntaxRoot = syntaxTree.GetRoot();
+
+                    var walker = new Walker();
+                    walker.Visit(syntaxRoot);
+
+                    if (string.IsNullOrEmpty(walker.Namespace))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
+                    else if (string.IsNullOrEmpty(walker.Name))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no class.");
+                    else if (string.IsNullOrEmpty(walker.Prefix))
+                        failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
+                    else
+                    {
+                        file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
+                        failureReason = null;
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                failureReason = ex;
+            }
+
+            file = new LocalisationFile(string.Empty, string.Empty, string.Empty, Array.Empty<LocalisationMember>());
+            return false;
         }
 
         public bool Equals(LocalisationFile? other)
