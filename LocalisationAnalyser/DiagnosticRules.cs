@@ -23,9 +23,9 @@ namespace LocalisationAnalyser
         public static readonly DiagnosticDescriptor XMLDOC_DOES_NOT_MATCH_STRING = new DiagnosticDescriptor(
             "OLOC002",
             "XmlDoc does not match translation string",
-            "Use the translation string's content",
+            "XmlDoc does not match translation string",
             "Globalization",
-            DiagnosticSeverity.Info,
+            DiagnosticSeverity.Warning,
             true,
             "The XmlDoc does not match the translation string.");
 
