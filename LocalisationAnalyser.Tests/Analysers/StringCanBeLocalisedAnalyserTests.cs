@@ -19,6 +19,6 @@ namespace LocalisationAnalyser.Tests.Analysers
         [InlineData("StringConcatenation")]
         [InlineData("VerbatimString")]
         [InlineData("VerbatimInterpolatedString")]
-        public override Task RunTest(string name) => Check(name);
+        public Task RunTest(string name) => Check(name);
     }
 }

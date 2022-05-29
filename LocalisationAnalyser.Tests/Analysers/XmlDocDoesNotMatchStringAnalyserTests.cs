@@ -11,6 +11,6 @@ namespace LocalisationAnalyser.Tests.Analysers
     {
         [Theory]
         [InlineData("XmlDocDoesNotMatchString")]
-        public override Task RunTest(string name) => Check(name);
+        public Task RunTest(string name) => Check(name);
     }
 }

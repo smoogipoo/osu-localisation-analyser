@@ -15,8 +15,6 @@ namespace LocalisationAnalyser.Tests.Analysers
     {
         private const string resources_namespace = "LocalisationAnalyser.Tests.Resources";
 
-        public abstract Task RunTest(string name);
-
         protected async Task Check(string name)
         {
             var assembly = Assembly.GetExecutingAssembly();
