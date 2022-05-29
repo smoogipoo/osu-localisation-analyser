@@ -75,7 +75,7 @@ namespace LocalisationAnalyser.Localisation
                     member.Name,
                     member.Key,
                     convertToVerbatim(member.EnglishText),
-                    EncodeXmlDoc(member.EnglishText)))!;
+                    EncodeXmlDoc(member.XmlDoc)))!;
 
         /// <summary>
         /// Generates the syntax for a method member.
@@ -101,7 +101,7 @@ namespace LocalisationAnalyser.Localisation
                     member.Key,
                     convertToVerbatim(member.EnglishText),
                     trimParens(Formatter.Format(argList, workspace).ToFullString()), // The entire string minus the parens
-                    EncodeXmlDoc(member.EnglishText)))!;
+                    EncodeXmlDoc(member.XmlDoc)))!;
 
             static string trimParens(string input) => input.Substring(1, input.Length - 2);
         }

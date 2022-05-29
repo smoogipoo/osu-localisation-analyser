@@ -41,7 +41,7 @@ namespace LocalisationAnalyser.Localisation
         /// <param name="englishText">The english default text. This is also used for the XMLDoc.</param>
         /// <param name="parameters">Any parameters. If this is non-empty, the <see cref="LocalisationMember"/> will represent a method.</param>
         public LocalisationMember(string name, string key, string englishText, params LocalisationParameter[] parameters)
-            : this(name, key, englishText, string.Empty, parameters)
+            : this(name, key, englishText, englishText, parameters)
         {
         }
 
@@ -51,7 +51,7 @@ namespace LocalisationAnalyser.Localisation
         /// <param name="name">The name.</param>
         /// <param name="key">The localisation key to use for lookups.</param>
         /// <param name="englishText">The english default text. This is also used for the XMLDoc.</param>
-        /// <param name="xmlDoc">The XmlDoc for this member. Usually matches <see cref="EnglishText"/>.</param>
+        /// <param name="xmlDoc">The XmlDoc for this member. Usually matches <paramref name="englishText"/>.</param>
         /// <param name="parameters">Any parameters. If this is non-empty, the <see cref="LocalisationMember"/> will represent a method.</param>
         public LocalisationMember(string name, string key, string englishText, string xmlDoc, params LocalisationParameter[] parameters)
         {
