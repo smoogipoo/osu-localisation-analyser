@@ -32,9 +32,9 @@ namespace LocalisationAnalyser.CodeFixes
 
             context.RegisterCodeFix(
                 new LocaliseStringCodeAction(
-                    "Update XMLDoc to match translation text",
+                    PreferXmlDoc ? "Update translation text to match XMLDoc" : "Update XMLDoc to match translation text",
                     (preview, cancellationToken) => updateDefinition(context.Document, member, preview, cancellationToken),
-                    @"update-xmldoc"),
+                    $@"update-xmldoc-{PreferXmlDoc}"),
                 diagnostic);
         }
 
