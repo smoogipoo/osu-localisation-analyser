@@ -20,14 +20,14 @@ namespace LocalisationAnalyser
             true,
             "This string can be localised by using TranslatableString.");
 
-        public static readonly DiagnosticDescriptor XMLDOC_DOES_NOT_MATCH_STRING = new DiagnosticDescriptor(
+        public static readonly DiagnosticDescriptor XMLDOC_DOES_NOT_MATCH_TEXT = new DiagnosticDescriptor(
             "OLOC002",
-            "XmlDoc does not match translation string",
-            "XmlDoc does not match translation string",
+            "XMLDoc does not match the translation text",
+            "XMLDoc does not match the translation text",
             "Globalization",
             DiagnosticSeverity.Warning,
             true,
-            "The XmlDoc does not match the translation string.");
+            "Prevent confusion by matching the XMLDoc and the translation text.");
 
 #pragma warning restore RS2008
     }

@@ -19,7 +19,7 @@ namespace LocalisationAnalyser.Analysers
     {
         private readonly ConcurrentDictionary<string, LocalisationFile> validFiles = new ConcurrentDictionary<string, LocalisationFile>();
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_STRING);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT);
 
         public override void Initialize(AnalysisContext context)
         {
@@ -61,7 +61,7 @@ namespace LocalisationAnalyser.Analysers
             if (member.EnglishText == member.XmlDoc)
                 return;
 
-            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_STRING, context.Node.GetLocation(), context.Node));
+            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT, context.Node.GetLocation(), context.Node));
         }
     }
 }
