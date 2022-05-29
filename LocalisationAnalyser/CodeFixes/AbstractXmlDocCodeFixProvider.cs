@@ -58,7 +58,7 @@ namespace LocalisationAnalyser.CodeFixes
                     return m;
 
                 if (PreferXmlDoc)
-                    return new LocalisationMember(m.Name, m.Key, SyntaxGenerators.DecodeXmlDoc(m.XmlDoc), m.XmlDoc, m.Parameters.ToArray());
+                    return new LocalisationMember(m.Name, m.Key, m.XmlDoc, m.XmlDoc, m.Parameters.ToArray());
 
                 return new LocalisationMember(m.Name, m.Key, m.EnglishText, m.EnglishText, m.Parameters.ToArray());
             }).ToArray());

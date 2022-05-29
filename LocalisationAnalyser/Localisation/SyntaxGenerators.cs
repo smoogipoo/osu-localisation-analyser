@@ -228,9 +228,14 @@ namespace LocalisationAnalyser.Localisation
 
         public static string DecodeXmlDoc(string xmlDoc)
         {
-            xmlDoc = xmlDoc.Trim(' ', '"');
-            xmlDoc = xmlDoc.Replace("\r\n", "\n");
-            xmlDoc = xmlDoc.Replace("\r", "\n");
+            xmlDoc = xmlDoc.Trim();
+
+            // A valid XMLDoc is formulated as: "text". We need to remove only one set of quotes from either side, so Trim() is too greedy.
+            if (xmlDoc.Length > 0)
+                xmlDoc = xmlDoc.Substring(1);
+            if (xmlDoc.Length > 0)
+                xmlDoc = xmlDoc.Substring(0, xmlDoc.Length - 1);
+
             return HttpUtility.HtmlDecode(xmlDoc);
         }
 

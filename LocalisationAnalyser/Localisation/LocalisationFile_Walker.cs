@@ -97,14 +97,14 @@ namespace LocalisationAnalyser.Localisation
                 {
                     foreach (var literal in textSyntax.TextTokens)
                     {
-                        if (literal.Kind() != SyntaxKind.XmlTextLiteralToken)
+                        if (literal.Kind() == SyntaxKind.XmlTextLiteralNewLineToken)
                             continue;
 
                         sb.Append(literal);
                     }
                 }
 
-                currentXmlDoc = sb.ToString().Trim(' ', '"');
+                currentXmlDoc = SyntaxGenerators.DecodeXmlDoc(sb.ToString());
             }
 
             private static string convertNamespaceToString(NamespaceDeclarationSyntax declaration)
