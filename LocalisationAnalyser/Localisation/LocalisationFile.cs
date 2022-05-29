@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -59,9 +60,10 @@ namespace LocalisationAnalyser.Localisation
         /// <param name="stream">The stream to write to.</param>
         /// <param name="workspace">The workspace to format with.</param>
         /// <param name="options">The analyser options to apply to the document.</param>
-        public async Task WriteAsync(Stream stream, Workspace workspace, AnalyzerConfigOptions? options = null)
+        /// <param name="leaveOpen">Whether to leave the given <paramref name="stream"/> open.</param>
+        public async Task WriteAsync(Stream stream, Workspace workspace, AnalyzerConfigOptions? options = null, bool leaveOpen = false)
         {
-            using (var sw = new StreamWriter(stream))
+            using (var sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
                 await sw.WriteAsync(Formatter.Format(SyntaxGenerators.GenerateClassSyntax(workspace, this, options), workspace).ToFullString());
         }
 

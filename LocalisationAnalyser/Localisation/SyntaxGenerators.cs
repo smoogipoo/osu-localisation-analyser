@@ -202,9 +202,9 @@ namespace LocalisationAnalyser.Localisation
                 SyntaxFactory.ParseName(directive)));
         }
 
-        public static string EncodeXmlDoc(string xmlDoc)
+        public static string EncodeXmlDoc(string text)
         {
-            var lines = xmlDoc.Split('\n');
+            var lines = text.Split('\n');
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -224,6 +224,14 @@ namespace LocalisationAnalyser.Localisation
             }
 
             return string.Join(Environment.NewLine, lines);
+        }
+
+        public static string DecodeXmlDoc(string xmlDoc)
+        {
+            xmlDoc = xmlDoc.Trim(' ', '"');
+            xmlDoc = xmlDoc.Replace("\r\n", "\n");
+            xmlDoc = xmlDoc.Replace("\r", "\n");
+            return HttpUtility.HtmlDecode(xmlDoc);
         }
 
         /// <summary>
