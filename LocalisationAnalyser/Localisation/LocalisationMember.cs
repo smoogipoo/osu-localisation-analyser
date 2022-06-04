@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
 
 namespace LocalisationAnalyser.Localisation
 {
@@ -28,11 +27,6 @@ namespace LocalisationAnalyser.Localisation
         public readonly string EnglishText;
 
         public readonly string XmlDoc;
-
-        /// <summary>
-        /// Physical location of this member in the file.
-        /// </summary>
-        public readonly Location Location;
 
         /// <summary>
         /// Any parameters. If this is non-empty, the <see cref="LocalisationMember"/> represents a method.
@@ -60,27 +54,12 @@ namespace LocalisationAnalyser.Localisation
         /// <param name="xmlDoc">The XmlDoc for this member. Usually matches <paramref name="englishText"/>.</param>
         /// <param name="parameters">Any parameters. If this is non-empty, the <see cref="LocalisationMember"/> will represent a method.</param>
         public LocalisationMember(string name, string key, string englishText, string xmlDoc, params LocalisationParameter[] parameters)
-            : this(name, key, englishText, xmlDoc, Location.None, parameters)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="LocalisationMember"/>. Analysis-only.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="key">The localisation key to use for lookups.</param>
-        /// <param name="englishText">The english default text. This is also used for the XMLDoc.</param>
-        /// <param name="xmlDoc">The XmlDoc for this member. Usually matches <paramref name="englishText"/>.</param>
-        /// <param name="location">The physical location of this member in the file.</param>
-        /// <param name="parameters">Any parameters. If this is non-empty, the <see cref="LocalisationMember"/> will represent a method.</param>
-        internal LocalisationMember(string name, string key, string englishText, string xmlDoc, Location location, params LocalisationParameter[] parameters)
         {
             Name = name;
             Key = key;
             EnglishText = englishText;
             XmlDoc = xmlDoc;
             Parameters = parameters.ToImmutableArray();
-            Location = location;
         }
 
         public bool Equals(LocalisationMember? other)
