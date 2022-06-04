@@ -91,31 +91,53 @@ namespace LocalisationAnalyser.Localisation
         /// in the form of an <see cref="Exception"/> if the read failed.</returns>
         public static async Task<(bool success, LocalisationFile file, Exception? failureReason)> TryReadAsync(Stream stream)
         {
+            Exception? failureReason;
+
+            try
+            {
+                using (var sr = new StreamReader(stream))
+                    return await TryReadAsync(CSharpSyntaxTree.ParseText(await sr.ReadToEndAsync()));
+            }
+            catch (Exception ex)
+            {
+                failureReason = ex;
+            }
+
+            return (
+                false,
+                new LocalisationFile(string.Empty, string.Empty, string.Empty, Array.Empty<LocalisationMember>()),
+                failureReason);
+        }
+
+        /// <summary>
+        /// Attempts to read a <see cref="LocalisationFile"/> from a syntax tree.
+        /// </summary>
+        /// <param name="syntaxTree">The syntax tree to read.</param>
+        /// <returns>A tuple describing whether the <see cref="LocalisationFile"/> was successfully read, the resultant <see cref="LocalisationFile"/>, and an error
+        /// in the form of an <see cref="Exception"/> if the read failed.</returns>
+        public static async Task<(bool success, LocalisationFile file, Exception? failureReason)> TryReadAsync(SyntaxTree syntaxTree)
+        {
             bool result = false;
             LocalisationFile? file = null;
             Exception? failureReason = null;
 
             try
             {
-                using (var sr = new StreamReader(stream))
+                var syntaxRoot = await syntaxTree.GetRootAsync();
+
+                var walker = new Walker();
+                walker.Visit(syntaxRoot);
+
+                if (string.IsNullOrEmpty(walker.Namespace))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
+                else if (string.IsNullOrEmpty(walker.Name))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no class.");
+                else if (string.IsNullOrEmpty(walker.Prefix))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
+                else
                 {
-                    var syntaxTree = CSharpSyntaxTree.ParseText(await sr.ReadToEndAsync());
-                    var syntaxRoot = await syntaxTree.GetRootAsync();
-
-                    var walker = new Walker();
-                    walker.Visit(syntaxRoot);
-
-                    if (string.IsNullOrEmpty(walker.Namespace))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
-                    else if (string.IsNullOrEmpty(walker.Name))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no class.");
-                    else if (string.IsNullOrEmpty(walker.Prefix))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
-                    else
-                    {
-                        file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
-                        result = true;
-                    }
+                    file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
+                    result = true;
                 }
             }
             catch (Exception ex)
@@ -153,25 +175,42 @@ namespace LocalisationAnalyser.Localisation
             try
             {
                 using (var sr = new StreamReader(stream))
+                    return TryRead(CSharpSyntaxTree.ParseText(sr.ReadToEnd()), out file, out failureReason);
+            }
+            catch (Exception ex)
+            {
+                failureReason = ex;
+            }
+
+            file = new LocalisationFile(string.Empty, string.Empty, string.Empty, Array.Empty<LocalisationMember>());
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to read a <see cref="LocalisationFile"/> from a syntax tree.
+        /// </summary>
+        /// <param name="syntaxTree">The syntax tree to read.</param>
+        /// <param name="file">The resultant <see cref="LocalisationFile"/>.</param>
+        /// <param name="failureReason">The reason why the <see cref="LocalisationFile"/> failed to be read.</param>
+        /// <returns>Whether the <see cref="LocalisationFile"/> was successfully read.</returns>
+        public static bool TryRead(SyntaxTree syntaxTree, out LocalisationFile file, out Exception? failureReason)
+        {
+            try
+            {
+                var walker = new Walker();
+                walker.Visit(syntaxTree.GetRoot());
+
+                if (string.IsNullOrEmpty(walker.Namespace))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
+                else if (string.IsNullOrEmpty(walker.Name))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no class.");
+                else if (string.IsNullOrEmpty(walker.Prefix))
+                    failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
+                else
                 {
-                    var syntaxTree = CSharpSyntaxTree.ParseText(sr.ReadToEnd());
-                    var syntaxRoot = syntaxTree.GetRoot();
-
-                    var walker = new Walker();
-                    walker.Visit(syntaxRoot);
-
-                    if (string.IsNullOrEmpty(walker.Namespace))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no namespace.");
-                    else if (string.IsNullOrEmpty(walker.Name))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no class.");
-                    else if (string.IsNullOrEmpty(walker.Prefix))
-                        failureReason = new MalformedLocalisationException("The localisation file contains no prefix identifier");
-                    else
-                    {
-                        file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
-                        failureReason = null;
-                        return true;
-                    }
+                    file = new LocalisationFile(walker.Namespace!, walker.Name!, walker.Prefix!, walker.Members.ToArray());
+                    failureReason = null;
+                    return true;
                 }
             }
             catch (Exception ex)
