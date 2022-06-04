@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace LocalisationAnalyser.Analysers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class StringDoesNotMatchXmlDocAnalyser : AbstractMemberAnalyser
+    public class TextDoesNotMatchXmlDocAnalyser : AbstractMemberAnalyser
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC);
 

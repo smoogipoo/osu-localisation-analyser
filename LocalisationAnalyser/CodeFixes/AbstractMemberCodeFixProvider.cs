@@ -15,7 +15,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace LocalisationAnalyser.CodeFixes
 {
-    public abstract class AbstractXmlDocCodeFixProvider : CodeFixProvider
+    public abstract class AbstractMemberCodeFixProvider : CodeFixProvider
     {
         protected async Task<Solution> UpdateDefinition(Document document, MemberDeclarationSyntax member, bool preview, CancellationToken cancellationToken)
         {

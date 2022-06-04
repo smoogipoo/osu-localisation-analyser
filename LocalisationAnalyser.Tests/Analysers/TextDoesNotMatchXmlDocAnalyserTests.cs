@@ -7,10 +7,10 @@ using Xunit;
 
 namespace LocalisationAnalyser.Tests.Analysers
 {
-    public class XmlDocDoesNotMatchStringAnalyserTests : AbstractAnalyserTests<XmlDocDoesNotMatchStringAnalyser>
+    public class TextDoesNotMatchXmlDocAnalyserTests : AbstractAnalyserTests<TextDoesNotMatchXmlDocAnalyser>
     {
         [Theory]
-        [InlineData("XmlDocDoesNotMatchString")]
+        [InlineData("TextDoesNotMatchXmlDoc")]
         public Task RunTest(string name) => Check(name);
     }
 }

@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace LocalisationAnalyser.CodeFixes
 {
     [ExportCodeFixProvider(LanguageNames.CSharp), Shared]
-    public class MakeTextMatchXmlDocCodeFixProvider : AbstractXmlDocCodeFixProvider
+    public class MakeTextMatchXmlDocCodeFixProvider : AbstractMemberCodeFixProvider
     {
         public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC.Id);
 
