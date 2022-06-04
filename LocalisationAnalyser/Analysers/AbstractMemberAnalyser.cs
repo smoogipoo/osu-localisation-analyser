@@ -1,11 +1,8 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System.Collections.Concurrent;
-using System.IO;
-using System.Text;
+using System.Linq;
 using LocalisationAnalyser.Localisation;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -13,8 +10,6 @@ namespace LocalisationAnalyser.Analysers
 {
     public abstract class AbstractMemberAnalyser : DiagnosticAnalyzer
     {
-        private readonly ConcurrentDictionary<string, LocalisationFile> validFiles = new ConcurrentDictionary<string, LocalisationFile>();
-
         public override void Initialize(AnalysisContext context)
         {
             // See https://github.com/dotnet/roslyn/blob/main/docs/analyzers/Analyzer%20Actions%20Semantics.md for more information
@@ -22,34 +17,24 @@ namespace LocalisationAnalyser.Analysers
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxTreeAction(analyseSyntaxTree);
-            context.RegisterSyntaxNodeAction(analyseProperty, SyntaxKind.PropertyDeclaration);
         }
 
         private void analyseSyntaxTree(SyntaxTreeAnalysisContext context)
         {
-            string path = context.Tree.FilePath;
-
-            using (var ms = new MemoryStream())
-            {
-                using (var sw = new StreamWriter(ms, Encoding.UTF8, 1024, true))
-                    sw.Write(context.Tree.ToString());
-
-                ms.Position = 0;
-
-                if (LocalisationFile.TryRead(ms, out var file, out _))
-                    validFiles[path] = file;
-            }
-        }
-
-        private void analyseProperty(SyntaxNodeAnalysisContext context)
-        {
-            if (!validFiles.TryGetValue(context.Node.SyntaxTree.FilePath, out var file))
+            // Optimisation to not inspect too many files.
+            if (!context.Tree.FilePath.EndsWith("Strings.cs"))
                 return;
 
-            AnalyseProperty(context, (PropertyDeclarationSyntax)context.Node, file);
+            if (!LocalisationFile.TryRead(context.Tree, out var file, out _))
+                return;
+
+            var root = context.Tree.GetRoot();
+
+            foreach (var prop in root.DescendantNodes().OfType<PropertyDeclarationSyntax>())
+                AnalyseProperty(context, prop, file);
         }
 
-        protected virtual void AnalyseProperty(SyntaxNodeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
+        protected virtual void AnalyseProperty(SyntaxTreeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
         {
         }
     }

@@ -16,7 +16,7 @@ namespace LocalisationAnalyser.Analysers
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT);
 
-        protected override void AnalyseProperty(SyntaxNodeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
+        protected override void AnalyseProperty(SyntaxTreeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
         {
             base.AnalyseProperty(context, property, localisationFile);
 
@@ -31,7 +31,7 @@ namespace LocalisationAnalyser.Analysers
 
             var xmlDocTrivia = property.Modifiers.First().LeadingTrivia.FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia));
 
-            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT, xmlDocTrivia.GetLocation(), context.Node));
+            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT, xmlDocTrivia.GetLocation(), property));
         }
     }
 }
