@@ -11,20 +11,20 @@ namespace TestProject.Localisation
         /// </summary>
         public static LocalisableString Matches => new TranslatableString(getKey(@"matches"), @"matches");
 
-        ///[| <summary>
+        /// <summary>
         /// "does not match"
         /// </summary>
-|]        public static LocalisableString DoesNotMatch => new TranslatableString(getKey(@"does_not_match"), @"dnm");
+        public static LocalisableString DoesNotMatch => new TranslatableString(getKey(@"does_not_match"), [|@"dnm"|]);
 
         /// <summary>
         /// ""&lt;&gt;?&quot;&#39;&#39;&amp;*!@#&amp;*^%^()-=""
         /// </summary>
         public static LocalisableString SpecialChars => new TranslatableString(getKey(@"special_chars"), @"""<>?""''&*!@#&*^%^()-=""");
 
-        ///[| <summary>
+        /// <summary>
         /// ""&lt;&gt;?&quot;&#39;&#39;&amp;*!@#&amp;*^%^()-=""
         /// </summary>
-|]        public static LocalisableString SpecialCharsDoNotMatch => new TranslatableString(getKey(@"special_chars"), @"<>?""''&*!@#&*^%^()-=");
+        public static LocalisableString SpecialCharsDoNotMatch => new TranslatableString(getKey(@"special_chars"), [|@"<>?""''&*!@#&*^%^()-="|]);
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

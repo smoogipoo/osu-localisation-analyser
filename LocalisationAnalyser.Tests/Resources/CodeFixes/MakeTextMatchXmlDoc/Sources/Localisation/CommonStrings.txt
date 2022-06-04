@@ -9,7 +9,7 @@ namespace TestProject.Localisation
         /// <summary>
         /// "does not match"
         /// </summary>
-        [|public static LocalisableString DoesNotMatch => new TranslatableString(getKey(@"does_not_match"), @"dnm");|]
+        public static LocalisableString DoesNotMatch => new TranslatableString(getKey(@"does_not_match"), [|@"dnm"|]);
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

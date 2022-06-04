@@ -130,7 +130,7 @@ namespace LocalisationAnalyser.Localisation
                 if (!tryAnalyseMemberBody(body!, out var key, out var englishText))
                     return;
 
-                Members.Add(new LocalisationMember(name, key, englishText, currentXmlDoc, parameters));
+                Members.Add(new LocalisationMember(name, key, englishText, currentXmlDoc, node.GetLocation(), parameters));
             }
 
             private bool tryAnalyseMemberDefinition(MemberDeclarationSyntax member, out string name, out LocalisationParameter[] parameters,

@@ -29,6 +29,15 @@ namespace LocalisationAnalyser
             true,
             "Prevent confusion by matching the XMLDoc and the translation text.");
 
+        public static readonly DiagnosticDescriptor TEXT_DOES_NOT_MATCH_XMLDOC = new DiagnosticDescriptor(
+            "OLOC003",
+            "Translation text does not match the XMLDoc",
+            "Translation text does not match the XMLDoc",
+            "Globalization",
+            DiagnosticSeverity.Warning,
+            true,
+            "Prevent confusion by matching the XMLDoc and the translation text.");
+
 #pragma warning restore RS2008
     }
 }

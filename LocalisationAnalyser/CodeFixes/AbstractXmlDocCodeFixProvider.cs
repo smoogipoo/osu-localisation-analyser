@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,27 +17,7 @@ namespace LocalisationAnalyser.CodeFixes
 {
     public abstract class AbstractXmlDocCodeFixProvider : CodeFixProvider
     {
-        public override ImmutableArray<string> FixableDiagnosticIds => ImmutableArray.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT.Id);
-
-        protected abstract bool PreferXmlDoc { get; }
-
-        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
-        {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-
-            var diagnostic = context.Diagnostics.First();
-            var diagnosticSpan = diagnostic.Location.SourceSpan;
-            var member = (MemberDeclarationSyntax)root!.FindToken(diagnosticSpan.Start).Parent;
-
-            context.RegisterCodeFix(
-                new LocaliseStringCodeAction(
-                    PreferXmlDoc ? "Update translation text to match XMLDoc" : "Update XMLDoc to match translation text",
-                    (preview, cancellationToken) => updateDefinition(context.Document, member, preview, cancellationToken),
-                    $@"update-xmldoc-{PreferXmlDoc}"),
-                diagnostic);
-        }
-
-        private async Task<Solution> updateDefinition(Document document, MemberDeclarationSyntax member, bool preview, CancellationToken cancellationToken)
+        protected async Task<Solution> UpdateDefinition(Document document, MemberDeclarationSyntax member, bool preview, CancellationToken cancellationToken)
         {
             LocalisationFile currentFile;
 
@@ -57,10 +36,7 @@ namespace LocalisationAnalyser.CodeFixes
                 if (m.Name != ((PropertyDeclarationSyntax)member).Identifier.Text)
                     return m;
 
-                if (PreferXmlDoc)
-                    return new LocalisationMember(m.Name, m.Key, m.XmlDoc, m.XmlDoc, m.Parameters.ToArray());
-
-                return new LocalisationMember(m.Name, m.Key, m.EnglishText, m.EnglishText, m.Parameters.ToArray());
+                return FixMember(m);
             }).ToArray());
 
             using (var ms = new MemoryStream())
@@ -71,5 +47,7 @@ namespace LocalisationAnalyser.CodeFixes
                 return document.WithText(SourceText.From(ms, Encoding.UTF8)).Project.Solution;
             }
         }
+
+        protected abstract LocalisationMember FixMember(LocalisationMember member);
     }
 }

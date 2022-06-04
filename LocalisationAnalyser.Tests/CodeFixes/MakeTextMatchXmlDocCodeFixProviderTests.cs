@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using Xunit;
 using VerifyCS = LocalisationAnalyser.Tests.Verifiers.CSharpCodeFixVerifier<
-    LocalisationAnalyser.Analysers.XmlDocDoesNotMatchStringAnalyser,
+    LocalisationAnalyser.Analysers.StringDoesNotMatchXmlDocAnalyser,
     LocalisationAnalyser.CodeFixes.MakeTextMatchXmlDocCodeFixProvider>;
 
 namespace LocalisationAnalyser.Tests.CodeFixes

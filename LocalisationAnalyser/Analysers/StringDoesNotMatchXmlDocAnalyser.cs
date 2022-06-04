@@ -5,16 +5,15 @@ using System.Collections.Immutable;
 using System.Linq;
 using LocalisationAnalyser.Localisation;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace LocalisationAnalyser.Analysers
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class XmlDocDoesNotMatchStringAnalyser : AbstractMemberAnalyser
+    public class StringDoesNotMatchXmlDocAnalyser : AbstractMemberAnalyser
     {
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT);
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC);
 
         protected override void AnalyseProperty(SyntaxNodeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
         {
@@ -29,9 +28,10 @@ namespace LocalisationAnalyser.Analysers
             if (member.EnglishText == member.XmlDoc)
                 return;
 
-            var xmlDocTrivia = property.Modifiers.First().LeadingTrivia.FirstOrDefault(t => t.IsKind(SyntaxKind.SingleLineDocumentationCommentTrivia));
+            var creationExpression = (ObjectCreationExpressionSyntax)property.ExpressionBody.Expression;
+            var textArgument = creationExpression.ArgumentList!.Arguments.Last();
 
-            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.XMLDOC_DOES_NOT_MATCH_TEXT, xmlDocTrivia.GetLocation(), context.Node));
+            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC, textArgument.GetLocation(), context.Node));
         }
     }
 }
