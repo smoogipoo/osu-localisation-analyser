@@ -15,23 +15,30 @@ namespace LocalisationAnalyser.Analysers
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC);
 
-        protected override void AnalyseProperty(SyntaxTreeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
+        protected override void AnalyseProperty(SyntaxTreeAnalysisContext context, LocalisationMember member, PropertyDeclarationSyntax property)
         {
-            base.AnalyseProperty(context, property, localisationFile);
-
-            string? name = property.Identifier.Text;
-            if (name == null)
-                return;
-
-            LocalisationMember member = localisationFile.Members.Single(m => m.Name == name && m.Parameters.Length == 0);
+            base.AnalyseProperty(context, member, property);
 
             if (member.EnglishText == member.XmlDoc)
                 return;
 
             var creationExpression = (ObjectCreationExpressionSyntax)property.ExpressionBody.Expression;
-            var textArgument = creationExpression.ArgumentList!.Arguments.Last();
+            var textArgument = creationExpression.ArgumentList!.Arguments.ElementAt(1);
 
             context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC, textArgument.GetLocation(), property));
+        }
+
+        protected override void AnalyseMethod(SyntaxTreeAnalysisContext context, LocalisationMember member, MethodDeclarationSyntax method)
+        {
+            base.AnalyseMethod(context, member, method);
+
+            if (member.EnglishText == member.XmlDoc)
+                return;
+
+            var creationExpression = (ObjectCreationExpressionSyntax)method.ExpressionBody.Expression;
+            var textArgument = creationExpression.ArgumentList!.Arguments.ElementAt(1);
+
+            context.ReportDiagnostic(Diagnostic.Create(DiagnosticRules.TEXT_DOES_NOT_MATCH_XMLDOC, textArgument.GetLocation(), method));
         }
     }
 }

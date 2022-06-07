@@ -31,10 +31,37 @@ namespace LocalisationAnalyser.Analysers
             var root = context.Tree.GetRoot();
 
             foreach (var prop in root.DescendantNodes().OfType<PropertyDeclarationSyntax>())
-                AnalyseProperty(context, prop, file);
+            {
+                string? name = prop.Identifier.Text;
+                if (name == null)
+                    return;
+
+                var member = file.Members.SingleOrDefault(m => m.Name == name);
+                if (member == null)
+                    return;
+
+                AnalyseProperty(context, member, prop);
+            }
+
+            foreach (var method in root.DescendantNodes().OfType<MethodDeclarationSyntax>())
+            {
+                string? name = method.Identifier.Text;
+                if (name == null)
+                    return;
+
+                var member = file.Members.SingleOrDefault(m => m.Name == name);
+                if (member == null)
+                    return;
+
+                AnalyseMethod(context, member, method);
+            }
         }
 
-        protected virtual void AnalyseProperty(SyntaxTreeAnalysisContext context, PropertyDeclarationSyntax property, LocalisationFile localisationFile)
+        protected virtual void AnalyseProperty(SyntaxTreeAnalysisContext context, LocalisationMember member, PropertyDeclarationSyntax property)
+        {
+        }
+
+        protected virtual void AnalyseMethod(SyntaxTreeAnalysisContext context, LocalisationMember member, MethodDeclarationSyntax method)
         {
         }
     }

@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,7 +36,23 @@ namespace LocalisationAnalyser.CodeFixes
 
             LocalisationFile updatedFile = currentFile.WithMembers(currentFile.Members.Select(m =>
             {
-                if (m.Name != ((PropertyDeclarationSyntax)member).Identifier.Text)
+                string memberName;
+
+                switch (member)
+                {
+                    case PropertyDeclarationSyntax property:
+                        memberName = property.Identifier.Text;
+                        break;
+
+                    case MethodDeclarationSyntax method:
+                        memberName = method.Identifier.Text;
+                        break;
+
+                    default:
+                        throw new NotSupportedException("Invalid syntax type.");
+                }
+
+                if (m.Name != memberName)
                     return m;
 
                 return FixMember(m);
